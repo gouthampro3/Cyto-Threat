@@ -1,0 +1,123 @@
+[
+    { 
+        "data" : { 
+            "id": "hari",
+            "parent" : "user",
+            "user_type": "Data Subject",
+            "scope": "in_scope"
+        },
+        "group" : "nodes",
+        "position": {
+            "x": -900,
+            "y": -50
+        }
+    },
+    {
+        "data" : {
+            "id" : "user"
+        },
+        "group" : "nodes"
+    },
+    {
+        "data" : {
+            "id" : "guru",
+            "parent" : "user",
+            "user_type": "Non-SE Persona",
+            "scope": "in_scope"
+        },
+        "group" : "nodes",
+        "position" : { 
+            "x" : -900, 
+            "y" : 50 
+        }
+    },
+    {
+        "data" : {
+            "id" : "mobile",
+            "parent" : "device",
+            "scope": "in_scope"
+        },
+        "group" : "nodes",
+        "position" : { 
+            "x" : -500, 
+            "y" : 0 
+        }
+    },
+    {
+        "data" : {
+            "id" : "device"
+        },
+        "group" : "nodes"
+    },
+    {
+        "data" : {
+            "id" : "Other ENV"
+        },
+        "group" : "nodes"
+    },
+    {
+        "data" : {
+            "id" : "icms",
+            "parent" : "Other ENV",
+            "scope": "out_of_scope"
+        },
+        "group" : "nodes",
+        "position" : { 
+            "x" : 100, 
+            "y" : 50 
+        }
+    },
+    {
+        "data" : {
+            "id" : "aws",
+            "parent" : "SE ENV"
+        },
+        "group" : "nodes",
+        "position" : { 
+            "x" : 500, 
+            "y" : 0 
+        }
+    },
+    {
+        "data" : {
+            "id" : "SE ENV"
+        },
+        "group" : "nodes"
+    },
+    {
+        "data" : {
+            "id" : "con1",
+            "source" : "hari",
+            "target" : "mobile",
+            "scope": "in_scope"
+        },
+        "group" : "edges"
+    },
+    {
+        "data" : {
+            "id" : "con2",
+            "source" : "mobile",
+            "target" : "guru",
+            "scope": "in_scope"
+        },
+        "group" : "edges"
+    },
+    {
+        "data" : {
+            "id" : "con3",
+            "source" : "mobile",
+            "target" : "aws",
+            "scope": "in_scope"
+        },
+        "group" : "edges"
+    },
+    {
+        "data" : {
+            "id" : "con4",
+            "source" : "mobile",
+            "target" : "icms",
+            "scope": "out_of_scope"
+        },
+        "group" : "edges"
+    }
+]

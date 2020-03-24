@@ -1,0 +1,185 @@
+[
+    { 
+        "data" : { 
+            "id": "hari",
+            "category" : "users",
+            "user_type": "Data Subject",
+            "scope": "in_scope",
+            "label":"Hari"
+        },
+        "group" : "nodes"
+    },
+    {
+        "data" : {
+            "id" : "goutham",
+            "category" : "users",
+            "user_type" : "Data Subject",
+            "scope":"in_scope",
+            "label":"Goutham"
+        },
+        "group" : "nodes"
+    },
+    {
+        "data" : {
+            "id" : "david",
+            "category" : "users",
+            "user_type" : "Data Subject",
+            "scope":"in_scope",
+            "label":"David"
+        },
+        "group" : "nodes"
+    },{
+        "data" : {
+            "id" : "guest",
+            "category" : "users",
+            "user_type" : "Data Subject",
+            "scope":"in_scope",
+            "label":"Guest"
+        },
+        "group" : "nodes"
+    },
+    {
+        "data" : {
+            "id" : "mobile",
+            "category" : "se_it",
+            "scope": "in_scope",
+            "label":"Mobile"
+        },
+        "group" : "nodes"
+    },
+    {
+        "data" : {
+            "id" : "laptop",
+            "category":"se_it",
+            "scope":"in_scope",
+            "label":"Laptop"
+        },
+        "group" : "nodes"
+    },
+    {
+        "data" : {
+            "id" : "aws",
+            "category":"se_managed",
+            "scope":"in_Scope",
+            "label":"AWS"
+        },
+        "group" : "nodes"
+    },
+    {
+        "data" : {
+            "id" : "box",
+            "category" : "se_managed",
+            "scope": "in_scope",
+            "label":"Box"
+        },
+        "group" : "nodes"
+    },
+    {
+        "data" : {
+            "id" : "spiceportal",
+            "category" : "se_managed",
+            "scope": "in_scope",
+            "label":"Spiceportal"
+        },
+        "group" : "nodes"
+    },
+    {
+        "data":{
+            "id":"kinaxis_sftp",
+            "category":"external",
+            "scope":"out_of_scope",
+            "label":"Kinaxis SFTP"
+        },
+        "group" : "nodes"
+    },
+    {
+        "data" : {
+            "id" : "1",
+            "source" : "hari",
+            "target" : "laptop",
+            "label":"Hari uses Laptop"
+        },
+        "group" : "edges"
+    },
+    {
+        "data" : {
+            "id" : "2",
+            "source" : "goutham",
+            "target" : "laptop",
+            "label":"Goutham uses Laptop"
+        },
+        "group" : "edges"
+    },
+    {
+        "data" : {
+            "id" : "3",
+            "source" : "david",
+            "target" : "mobile",
+            "label":"David uses Mobile"
+        },
+        "group" : "edges"
+    },
+    {
+        "data" : {
+            "id" : "4",
+            "source" : "mobile",
+            "target" : "spiceportal",
+            "label":"Mobile connects to Spiceportal"
+        },
+        "group" : "edges"
+    },
+    {
+        "data" : {
+            "id" : "5",
+            "source" : "laptop",
+            "target" : "aws",
+            "label":"Laptop connects AWS"
+        },
+        "group" : "edges"
+    },
+    {
+        "data" : {
+            "id" : "6",
+            "source" : "laptop",
+            "target" : "box",
+            "label":"Laptop connects to Box"
+        },
+        "group" : "edges"
+    },
+    {
+        "data" : {
+            "id" : "7",
+            "source" : "laptop",
+            "target" : "kinaxis_sftp",
+            "label":"Laptop connects to Kinaxis SFTP"
+        },
+        "group" : "edges"
+    },
+    {
+        "data" : {
+            "id" : "8",
+            "source" : "guest",
+            "target" : "mobile",
+            "label":"Guest uses Mobile"
+        },
+        "group" : "edges"
+    },
+    {
+        "data" : {
+            "id" : "9",
+            "source" : "hari",
+            "target" : "mobile",
+            "label":"Hari uses Laptop"
+        },
+        "group" : "edges"
+    },
+    {
+        "data" : {
+            "id" : "10",
+            "source" : "hari",
+            "target" : "aws",
+            "label":"Hari uses Laptop"
+        },
+        "group" : "edges"
+    }
+]
