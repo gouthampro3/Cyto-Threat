@@ -52,12 +52,12 @@ class CytoscapeGraph extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            elements: Data,
             addnode:0,
             addedge:0
         };
-        this.numedges=0;
+        this.numedges=1;
         this.cy = ''
+        this.elements=Data
         this.coordinates = ''
         this.num_nodes = { 'users': 0, 'se_it': 0, 'se_managed': 0, 'external': 0, }
         this.getCoordinatesOfGrids = this.getCoordinatesOfGrids.bind(this)
@@ -67,6 +67,7 @@ class CytoscapeGraph extends Component {
         this.handleAddEdgeButton = this.handleAddEdgeButton.bind(this)
     }
 
+    // Gets 2d coordinates of Grids for automove to position components in them. 
     getCoordinatesOfGrids() {
         let coordinates = { 'users': {}, 'se_it': {}, 'se_managed': {}, 'external': {}, }
         for (var paper in coordinates) {
@@ -83,8 +84,6 @@ class CytoscapeGraph extends Component {
                 'y': temp_coods.top + (this.num_nodes[obj.data.category] + 1) * 100
             }
             this.cy.add(obj)
-            //to add rerender graph based on state
-            //console.log(this.cy.elements().jsons())
             this.cy.automove({
                 nodesMatching: this.cy.$("#" + obj.data.id),
                 reposition: {
@@ -94,31 +93,25 @@ class CytoscapeGraph extends Component {
                     y2: temp_coods.y + temp_coods.height - (temp_coods.height / 20),
                 }
             });
-            //const data = this.cy.elements()
-            //const layout = this.cy.elements().layout()
-            // this.cy.elements().remove()
-            // this.cy.add(data)
-            //console.log(data)
-            //this.cy.layout(layout)
             this.num_nodes[obj.data.category]++
         }
         else {
-            console.log(obj.data.id)
-            console.log(obj)
-            console.log(this.numedges)
-            colsone.log(this.smulesof)
-            obj.data.id++
             this.numedges++
             this.cy.add(obj)
         }
         return 0;
     }
 
+    // Sets the behaviour of the referenced cy object. Will run only once
     makeGraph() {
         this.cy.panningEnabled(false)
-        for (var i = 0; i < this.state.elements.length; i++) {
-            this.placeNodeOrEdge(this.state.elements[i])
-        }
+
+        //there to fillin test data
+        /*
+        for (var i = 0; i < this.elements.length; i++) {
+            this.placeNodeOrEdge(this.elements[i])
+        }*/
+
         this.cy.style()
             .selector('node')
             .style('background-color', '#e91e63')
@@ -152,7 +145,6 @@ class CytoscapeGraph extends Component {
     componentDidMount() {
         // To remove the example nodes that cytoscape-react creates
         this.cy.remove(this.cy.nodes())
-
         this.getCoordinatesOfGrids()
         this.makeGraph()
     }
@@ -165,9 +157,9 @@ class CytoscapeGraph extends Component {
             options:[]
         }
         if(this.state.addedge===1){
-            for (var i=0;i<this.state.elements.length;i++){
-                if(this.state.elements[i].group==='nodes'){
-                    flatProps.options.push(this.state.elements[i].data.id)
+            for (var i=0;i<this.elements.length;i++){
+                if(this.elements[i].group==='nodes'){
+                    flatProps.options.push(this.elements[i].data.id)
                 }
             }
             console.log(flatProps.options)
@@ -224,7 +216,6 @@ class CytoscapeGraph extends Component {
                     <CytoscapeComponent
                         style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}
                         cy={(cyRef) => { this.cy = cyRef }}
-                        elements= {this.state.elements}
                     />
                 </Box>
                 <Box>
@@ -242,8 +233,7 @@ class CytoscapeGraph extends Component {
                                                     initialValues={{ 'id': '', 'label':'','category':'','user_type':'','scope':'' }}
                                                     onSubmit = {
                                                         (values,actions)=>{
-                                                            var data=this.state.elements
-                                                            data.push({'data':values,'group':'nodes'})
+                                                            this.elements.push({'data':values,'group':'nodes'})
                                                             this.placeNodeOrEdge({'data':values,'group':'nodes'})
                                                             actions.resetForm()
                                                         }
@@ -285,11 +275,11 @@ class CytoscapeGraph extends Component {
                     }
                     {
                         (this.state.addedge===1)?<Formik
-                                                    initialValues={{ 'id':this.numedges,'source': '', 'target':'','label':''}}
+                                                    initialValues={{ 'id':'','source': '', 'target':'','label':''}}
                                                     onSubmit = {
                                                         (values,actions)=>{
-                                                            var data=this.state.elements
-                                                            data.push({'data':values,'group':'edges'})
+                                                            values.id=this.numedges
+                                                            this.elements.push({'data':values,'group':'edges'})
                                                             this.placeNodeOrEdge({'data':values,'group':'edges'})
                                                             actions.resetForm()
                                                             console.log(values)
