@@ -2,7 +2,7 @@ import React, { Component, ReactFragment } from 'react';
 
 //materialUI
 import { styled, sizing } from '@material-ui/core/styles';
-import { Paper, Grid, Box, Card, CardContent, Typography, TextField, Button, Select, MenuItem,InputLabel,FormControl  } from '@material-ui/core';
+import { Paper, Grid, Box, Card, CardContent, Typography, TextField, Button, Select, MenuItem,InputLabel,FormControl, FormGroup  } from '@material-ui/core';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 
 //formik
@@ -14,6 +14,7 @@ import automove from 'cytoscape-automove';
 import CytoscapeComponent from 'react-cytoscapejs';
 
 import FormikAutocomplete from './formik_autocomplete'
+import NodesList from './node_table';
 import Data from '../Data/data.json';
 import '../Styles/cytoscape_graph.css';
 
@@ -24,7 +25,7 @@ const GraphCard = styled(Card)({
     textAlign: 'center',
     color: 'black',
     height: '70vh',
-    backgroundColor:'white'
+    backgroundColor:'white',
 });
 
 const BorderedBox = styled(Box)({
@@ -32,7 +33,9 @@ const BorderedBox = styled(Box)({
 });
 
 const SeButton = styled(Button)({
-    backgroundColor:"#36C746"
+    backgroundColor:"#36C746",
+    marginTop:"5px",
+    marginBotton:"5px"
 });
 
 const SelectControl = styled(Select)({
@@ -40,11 +43,10 @@ const SelectControl = styled(Select)({
 });
 
 const StyledFormControl = styled(FormControl)({
-    marginRight:"10px"
+    marginRight:"5px"
 });
 const flexContainer = {
     display: 'flex',
-    flexDirection: 'row',
 };
 
 class CytoscapeGraph extends Component {
@@ -53,13 +55,15 @@ class CytoscapeGraph extends Component {
         super(props);
         this.state = {
             addnode:0,
-            addedge:0
+            addedge:0,
+            elements:[],
+            nodesList:{}
         };
-        this.numedges=1;
+        
+        this.numEdges=1;
         this.cy = ''
-        this.elements=Data
         this.coordinates = ''
-        this.num_nodes = { 'users': 0, 'se_it': 0, 'se_managed': 0, 'external': 0, }
+        this.numNodes = { 'users': 0, 'se_it': 0, 'se_managed': 0, 'external': 0, }
         this.getCoordinatesOfGrids = this.getCoordinatesOfGrids.bind(this)
         this.makeGraph = this.makeGraph.bind(this)
         this.placeNodeOrEdge = this.placeNodeOrEdge.bind(this)
@@ -77,11 +81,13 @@ class CytoscapeGraph extends Component {
     }
 
     placeNodeOrEdge(obj) {
+        console.log(this.state.nodesList)
+        var tempList
         if (obj.group == 'nodes') {
             let temp_coods = this.coordinates[obj.data.category]
             obj['position'] = {
                 'x': temp_coods.left + temp_coods.width / 2,
-                'y': temp_coods.top + (this.num_nodes[obj.data.category] + 1) * 100
+                'y': temp_coods.top + (this.numNodes[obj.data.category] + 1) * 100
             }
             this.cy.add(obj)
             this.cy.automove({
@@ -93,11 +99,20 @@ class CytoscapeGraph extends Component {
                     y2: temp_coods.y + temp_coods.height - (temp_coods.height / 20),
                 }
             });
-            this.num_nodes[obj.data.category]++
+            this.numNodes[obj.data.category]++
+            obj.data['edges']=[]
+
+            tempList=this.state.nodesList
+            tempList[JSON.stringify(obj.data.id)]=obj.data
+            this.setState({nodesList:tempList})
         }
         else {
-            this.numedges++
+            this.numEdges++
             this.cy.add(obj)
+            tempList=this.state.nodesList
+            tempList[JSON.stringify(obj.data.source)].edges.push(obj.data.target)
+            tempList[JSON.stringify(obj.data.target)].edges.push(obj.data.source)
+            this.setState({nodesList:tempList})
         }
         return 0;
     }
@@ -108,8 +123,8 @@ class CytoscapeGraph extends Component {
 
         //there to fillin test data
         /*
-        for (var i = 0; i < this.elements.length; i++) {
-            this.placeNodeOrEdge(this.elements[i])
+        for (var i = 0; i < this.state.elements.length; i++) {
+            this.placeNodeOrEdge(this.state.elements[i])
         }*/
 
         this.cy.style()
@@ -150,19 +165,19 @@ class CytoscapeGraph extends Component {
     }
 
     render() {
+        /*  For debugging
         if(this.cy!==''){
             console.log(this.cy.json())
-        }
+        } */
         const flatProps ={
             options:[]
         }
         if(this.state.addedge===1){
-            for (var i=0;i<this.elements.length;i++){
-                if(this.elements[i].group==='nodes'){
-                    flatProps.options.push(this.elements[i].data.id)
+            for (var i=0;i<this.state.elements.length;i++){
+                if(this.state.elements[i].group==='nodes'){
+                    flatProps.options.push(this.state.elements[i].data.id)
                 }
             }
-            console.log(flatProps.options)
         }
         return (
             <Box m={2}>
@@ -230,44 +245,50 @@ class CytoscapeGraph extends Component {
                         </Grid>
                     </Box>
                     { (this.state.addnode===1) ?<Formik
-                                                    initialValues={{ 'id': '', 'label':'','category':'','user_type':'','scope':'' }}
+                                                    initialValues={{ 'id': '', 'label':'','category':'','type':'','scope':'', 'remark':'' }}
                                                     onSubmit = {
                                                         (values,actions)=>{
-                                                            this.elements.push({'data':values,'group':'nodes'})
+                                                            var temp_ele = this.state.elements
+                                                            temp_ele.push({'data':values,'group':'nodes'})
                                                             this.placeNodeOrEdge({'data':values,'group':'nodes'})
                                                             actions.resetForm()
+                                                            this.setState(({elements:temp_ele}))
                                                         }
                                                     }
                                                 >
                                                     {props=>(
                                                         <form style={flexContainer}>
-                                                            <StyledFormControl>
-                                                                <TextField label="Id" type='text' onChange={props.handleChange} value={props.values.id} name="id" variant= "outlined" required/>
-                                                            </StyledFormControl>
-                                                            <StyledFormControl>
-                                                                <TextField label="Label" type='text' onChange={props.handleChange} value={props.values.label} name="label" variant= "outlined" required/>
-                                                            </StyledFormControl>
-                                                            <StyledFormControl>
-                                                                
-                                                                <TextField label="User Type" type='text' onChange={props.handleChange} value={props.values.user_type} name="user_type" variant= "outlined" required/>
-                                                            </StyledFormControl>
-                                                            <StyledFormControl required>
-                                                                <InputLabel id="category-label">Category</InputLabel>
-                                                                <SelectControl id="category" labelId  = "category-label" onChange={props.handleChange} value={props.values.category} name="category" >
-                                                                    <MenuItem value="users">Users</MenuItem>
-                                                                    <MenuItem value="se_it">SE/IT</MenuItem>
-                                                                    <MenuItem value="se_managed">SE Managed</MenuItem>
-                                                                    <MenuItem value="external">External</MenuItem>
-                                                                </SelectControl>
-                                                            </StyledFormControl>
-                                                            <StyledFormControl required>
-                                                                <InputLabel id="category-label2">Scope</InputLabel>
-                                                                <SelectControl labelWidth={5} id="scope" labelId="category-label2" onChange={props.handleChange} value={props.values.scope} name="scope">
-                                                                    <MenuItem value="in_scope">In Scope</MenuItem>
-                                                                    <MenuItem value="out_of_scope">Out of Scope</MenuItem>
-                                                                </SelectControl>
-                                                            </StyledFormControl>
-                                                            <SeButton variant="contained" onClick={props.handleSubmit}>Submit</SeButton>
+                                                            <FormGroup row={true}>
+                                                                <StyledFormControl>
+                                                                    <TextField width="80%" label="Id" type='text' onChange={props.handleChange} value={props.values.id} name="id" variant= "outlined" required/>
+                                                                </StyledFormControl>
+                                                                <StyledFormControl>
+                                                                    <TextField label="Label" type='text' onChange={props.handleChange} value={props.values.label} name="label" variant= "outlined" required/>
+                                                                </StyledFormControl>
+                                                                <StyledFormControl>
+                                                                    <TextField label="User Type" type='text' onChange={props.handleChange} value={props.values.type} name="type" variant= "outlined" required/>
+                                                                </StyledFormControl>
+                                                                <StyledFormControl required>
+                                                                    <InputLabel id="category-label">Category</InputLabel>
+                                                                    <SelectControl width="80%" id="category" labelId  = "category-label" onChange={props.handleChange} value={props.values.category} name="category" >
+                                                                        <MenuItem value="users">Users</MenuItem>
+                                                                        <MenuItem value="se_it">SE/IT</MenuItem>
+                                                                        <MenuItem value="se_managed">SE Managed</MenuItem>
+                                                                        <MenuItem value="external">External</MenuItem>
+                                                                    </SelectControl>
+                                                                </StyledFormControl>
+                                                                <StyledFormControl required>
+                                                                    <InputLabel id="category-label2">Scope</InputLabel>
+                                                                    <SelectControl labelWidth={5} id="scope" labelId="category-label2" onChange={props.handleChange} value={props.values.scope} name="scope">
+                                                                        <MenuItem value="in_scope">In Scope</MenuItem>
+                                                                        <MenuItem value="out_of_scope">Out of Scope</MenuItem>
+                                                                    </SelectControl>
+                                                                </StyledFormControl>
+                                                                <StyledFormControl>
+                                                                    <TextField label="remark" type='text' onChange={props.handleChange} value={props.values.remark} name="remark" variant= "outlined" required/>
+                                                                </StyledFormControl>
+                                                                <SeButton variant="contained" onClick={props.handleSubmit}>Submit</SeButton>
+                                                            </FormGroup>
                                                         </form>
                                                     )}
                                                 </Formik>
@@ -278,41 +299,47 @@ class CytoscapeGraph extends Component {
                                                     initialValues={{ 'id':'','source': '', 'target':'','label':''}}
                                                     onSubmit = {
                                                         (values,actions)=>{
-                                                            values.id=this.numedges
-                                                            this.elements.push({'data':values,'group':'edges'})
+                                                            values.id=this.numEdges
+                                                            var temp_ele = this.state.elements
+                                                            temp_ele.push({'data':values,'group':'edges'})
                                                             this.placeNodeOrEdge({'data':values,'group':'edges'})
+                                                            this.setState(({elements:temp_ele}))
                                                             actions.resetForm()
-                                                            console.log(values)
                                                         }
                                                     }
                                                 >
                                                     {props=>(
                                                         <form style={flexContainer}>
-                                                            <StyledFormControl required>
-                                                                <Field component={FormikAutocomplete} label="Srouce"
-                                                                    options={flatProps.options}
-                                                                    value={props.values.source}
-                                                                    name="source"
-                                                                    textFieldProps={{ fullWidth: true,label:'Source' }}
-                                                                />
-                                                            </StyledFormControl>
-                                                            <StyledFormControl required>
-                                                                <Field component={FormikAutocomplete} label="Target"
-                                                                    options={flatProps.options}
-                                                                    value={props.values.source}
-                                                                    name="target"
-                                                                    textFieldProps={{ fullWidth: true,label:'Target' }}
-                                                                />
-                                                            </StyledFormControl>
-                                                            <StyledFormControl required>
-                                                                <TextField label="Label" type='text' onChange={props.handleChange} value={props.values.label} name="label" variant= "outlined" required/>
-                                                            </StyledFormControl>
-                                                            <SeButton variant="contained" onClick={props.handleSubmit}>Submit</SeButton>
+                                                            <FormGroup row={true}>
+                                                                <StyledFormControl required>
+                                                                    <Field component={FormikAutocomplete} label="Srouce"
+                                                                        options={flatProps.options}
+                                                                        value={props.values.source}
+                                                                        name="source"
+                                                                        textFieldProps={{ fullWidth: true,label:'Source' }}
+                                                                    />
+                                                                </StyledFormControl>
+                                                                <StyledFormControl required>
+                                                                    <Field component={FormikAutocomplete} label="Target"
+                                                                        options={flatProps.options}
+                                                                        value={props.values.source}
+                                                                        name="target"
+                                                                        textFieldProps={{ fullWidth: true,label:'Target' }}
+                                                                    />
+                                                                </StyledFormControl>
+                                                                <StyledFormControl required>
+                                                                    <TextField label="Label" type='text' onChange={props.handleChange} value={props.values.label} name="label" variant= "outlined" required/>
+                                                                </StyledFormControl>
+                                                                <SeButton variant="contained" onClick={props.handleSubmit}>Submit</SeButton>
+                                                            </FormGroup>
                                                         </form>
                                                     )}
                                                 </Formik>
                                                 :null
                     }
+                </Box>
+                <Box marginTop={2}>
+                    <NodesList elements={this.state.nodesList}/>
                 </Box>
             </Box>
 
